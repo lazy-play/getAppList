@@ -1,0 +1,84 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'AndResGuard'
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
+
+    defaultConfig {
+        applicationId "com.pudding.getapplist"
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    aaptOptions {
+        ignoreAssetsPattern 'drawable-xxhdpi-v4:drawable-xhdpi-v4:drawable-hdpi-v4:drawable-mdpi-v4'
+    }
+    signingConfigs {
+        Properties props = new Properties()
+        props.load(new FileInputStream(project.rootProject.file("local.properties")))
+        release {
+            storeFile file(props['STORE_FILE'])//签名文件路径
+            storePassword props['KEYSTORE_PASSWORD']
+            keyAlias props['KEY_ALIAS']
+            keyPassword props['KEY_PASSWORD'] //签名密码
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            zipAlignEnabled true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    splits {
+        density {
+            enable true
+            exclude "hdpi","mdpi","xhdpi","xxhdpi","xxxhdpi"
+            compatibleScreens 'small'
+        }
+    }
+}
+andResGuard {
+    mappingFile = null
+    useSign = true
+    keepRoot = false
+    use7zip = true
+    mergeDuplicatedRes = true
+    fixedResName = "arg"
+    sevenzip {
+        artifact = 'com.tencent.mm:SevenZip:1.2.17'
+    }
+    compressFilePattern = [
+            "*.png",
+            "*.jpg",
+            "*.jpeg",
+            "*.gif",
+            "resources.arsc"
+    ]
+    finalApkBackupPath = "${project.rootDir}/apk/GetAppList.apk"
+
+    digestalg = "SHA-256"
+}
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'androidx.core:core-ktx:1.3.0'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'org.jetbrains.anko:anko:0.10.8'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0-alpha03'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.4"
+}

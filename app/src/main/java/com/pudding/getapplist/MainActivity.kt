@@ -1,5 +1,6 @@
 package com.pudding.getapplist
 
+import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val list: ArrayList<AppInfo> = ArrayList()
         val showSystem = intent?.getBooleanExtra("showSystem", false) ?: false
+        val zipName=intent?.getStringExtra("zipName")?:"imagePath"
         val packages =
             packageManager.getInstalledPackages(0)
 
@@ -44,7 +46,7 @@ class MainActivity : AppCompatActivity() {
                     list.add(tmpInfo)
                 }
             }
-            val imageDir=File(filesDir.absolutePath+ File.separator+"imagePath")
+            val imageDir=File(filesDir.absolutePath+ File.separator+"AppInfo")
             delete(imageDir)
             for (info in list){
                 val fileName=imageDir.absolutePath+ File.separator+info.packageName+".png"
@@ -52,7 +54,7 @@ class MainActivity : AppCompatActivity() {
                 SaveUtil.saveBitmapToFile(bitmap,fileName)
                 info.appIconName=info.packageName+".png"
             }
-            val path=getExternalFilesDir(DIRECTORY_DOCUMENTS)?.absolutePath+ File.separator+"imagePath.zip"
+            val path=getExternalFilesDir(DIRECTORY_DOCUMENTS)?.absolutePath+ File.separator+zipName+".zip"
             val json="{list:${GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(list)}}"
             val jsonFile=File(filesDir.absolutePath+ File.separator+"listJson.json")
             if(!jsonFile.exists())
@@ -73,6 +75,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    @SuppressLint("NewApi")
     private fun getBitmapFromDrawable(drawable: Drawable?):Bitmap?{
         return when(drawable){
             is BitmapDrawable->drawable.bitmap
